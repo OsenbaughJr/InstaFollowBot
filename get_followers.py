@@ -7,7 +7,7 @@ import mysql.connector
 import sys
     
 victim_page = 'android'
-number_of_followers_wanted = 10
+number_of_followers_wanted = 10000
 username = 'okurka_jindrich'
 password = 'ragnarokonline'
 namesList = []
@@ -81,7 +81,7 @@ def wrtieUsernames():
             else:
                 lastId = flwrListLength
                 print(lastId)
-            if (lastId > 10):
+            if (lastId > number_of_followers_wanted):
                 for follower in followersList:
                     aList = follower.find_elements_by_tag_name('a')
                     namesList.append(aList[0].get_property('href'))
