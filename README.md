@@ -16,4 +16,7 @@ follow_all.py:
   Required actions before launching:
     successfully launch get_followers.py
     same preparation
+    
+follow_many.py:
+  from "follow_all.py" clone - added the ability to run multiple bots in 1 sript thanks to OOP, Threading
   
