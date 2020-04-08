@@ -7,6 +7,7 @@ from selenium.webdriver.common.keys import Keys as Keys
 import time
 import mysql.connector
 import sys
+import threading
 
 victim_page = 'justinbieber'
 number_of_followers_wanted = 54000
@@ -19,6 +20,9 @@ chromeOptions.add_argument('--headless')
 chromeOptions.add_argument('--no-sandbox')
 chromeOptions.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome(options=chromeOptions)
+
+global searchForFollowers
+searchForFollowers = True
 
 def logIn(usr, psw):
     driver.get('https://www.instagram.com/accounts/login/?source=auth_switcher')
@@ -63,17 +67,18 @@ def loadFollowersPage():
 
 def wrtieUsernames():
     step = 50
-    time.sleep(1)
+    time.sleep(2)
+    driver.save_screenshot('/root/Documents/temp/bP.png')
     ul = driver.find_elements_by_tag_name('ul')[3]
     div = ul.find_element_by_xpath('..')
     lastId = 0
-    t1 = time.perf_counter()
-    t2 = 0
+    #t1 = time.perf_counter()
+    #t2 = 0
     scrollEnd = number_of_followers_wanted * 54
     scroll = driver.execute_script('return arguments[0].scrollTop;', div)
     prevScroll = 0
-    try:
-        while (scroll < scrollEnd): #(lastId < number_of_followers_wanted):
+    while (scroll < scrollEnd and searchForFollowers): #(lastId < number_of_followers_wanted):
+        try:
             scroll = driver.execute_script('return arguments[0].scrollTop;', div)
         # driver.save_screenshot('/root/Documents/temp/check.png')
             driver.execute_script('arguments[0].scrollTop += arguments[1];', div, step)
@@ -91,9 +96,11 @@ def wrtieUsernames():
                     driver.save_screenshot('/root/sameSroll.png')
                     print('not loaded, revamping\n')
             prevScroll = scroll
-    except KeyboardInterrupt:
-        driver.save_screenshot('/root/KeyboardInterrupt.png')
-        print('while interrupted, NOT continuing..')
+        except:
+            driver.save_screenshot('/root/Documents/temp/KeyboardInterrupt.png')
+            print('while interrupted, continuing..')
+            driver.quit()
+            break
 
     # driver.save_screenshot('/root/Documents/temp/check2.png')
     followersList = ul.find_elements_by_tag_name('li')
@@ -114,12 +121,20 @@ def wrtieUsernames():
         namesList.append(aList[0].get_property('href'))
     print("completed")
 
+def stopScraping():
+    input()
+    global searchForFollowers
+    searchForFollowers = False
 
 def main():
     #try:
+    followLoop = threading.Thread(target=wrtieUsernames)
+    stopper = threading.Thread(target=stopScraping)
     logIn(username, password)
     loadFollowersPage()
-    wrtieUsernames() #doing nothing bug
+    #followLoop.start()
+    stopper.start()
+    wrtieUsernames()
     #except Exception as f:
      #   driver.save_screenshot("whatthefuckisgoingon.png")
 
@@ -153,4 +168,3 @@ if (__name__ == "__main__"):
 # find all li, write last index, load next, start from last
 # foreach save profile name to db_pgname(changed -> if url not username, skip) -7.5k ea-
 # 
-
