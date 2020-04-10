@@ -16,4 +16,4 @@ follow_all.py:
   Required actions before launching:
     successfully launch get_followers.py
     same preparation
-  
+  //*[@id="react-root"]/section/main/div/header/section/div[1]/button
